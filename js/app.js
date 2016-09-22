@@ -3,3 +3,13 @@
   Sahar Jafari
   GA SF JS3
 */
+
+(function() {
+	$('.articleContent a').on('click', function() {
+		$('#popUp').removeClass('hidden');
+	});
+
+	$('.closePopUp').on('click', function() {
+		$('#popUp').addClass('hidden');
+	});
+})();
