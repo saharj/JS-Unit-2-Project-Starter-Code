@@ -11,13 +11,19 @@
 
 	function initialize() {
     var feed = new google.feeds.Feed("http://www.bbc.co.uk/nature/wildlife/by/latest.rss");
-    
+    feed.setNumEntries(8);
     feed.load(function(result) {
 
     	//var feed = result.feed;
 
       if (!result.error) {
       	console.log(result.feed);
+
+      	var date;
+      	for (var i = 0; i < result.feed.entries.length; i++) {
+      		date = result.feed.entries[i].publishedDate.split(' ');
+      		result.feed.entries[i].publishedDate = date[2] + ' ' + date[3];
+      	}
 	    	var source = $('#entries-template').html();
 
 				var template = Handlebars.compile(source);
