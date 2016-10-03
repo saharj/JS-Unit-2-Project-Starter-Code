@@ -12,42 +12,49 @@
 	function initialize() {
     var feed = new google.feeds.Feed("http://www.bbc.co.uk/nature/wildlife/by/latest.rss");
     feed.setNumEntries(8);
+    feed.setResultFormat(google.feeds.Feed.XML_FORMAT);
     feed.load(function(result) {
 
-    	//var feed = result.feed;
+    	var feed = {
+    		entries: []
+    	};
 
       if (!result.error) {
-      	console.log(result.feed);
+      	console.log(result.xmlDocument);
 
-      	var date;
-      	for (var i = 0; i < result.feed.entries.length; i++) {
-      		date = result.feed.entries[i].publishedDate.split(' ');
-      		result.feed.entries[i].publishedDate = date[2] + ' ' + date[3];
-      	}
+      	var $xml = $(result.xmlDocument);
+      	var items = $xml.find('item');
+
+      	items.each(function(i, item) {
+      		var entry = {};
+      		var date = $(item).find('pubDate').text();
+      		var title = $(item).find('title').text();
+      		var img = $(item).find(':nth(3)').attr('url');
+      		var d = new Date(date);
+      		var month = d.getMonth();
+
+      		entry.date = month + 1; // Still has works to do
+      		entry.title = title;
+      		entry.image = img;
+      		feed.entries.push(entry);
+      	})
+
 	    	var source = $('#entries-template').html();
 
 				var template = Handlebars.compile(source);
 				
-				var compileTemplate = template(result.feed);
+				var compileTemplate = template(feed);
 
 				$('#main').append(compileTemplate);
-
-        // var container = $('#main');
-        // for (var i = 0; i < result.feed.entries.length; i++) {
-        // 	(function() {
-        // 		var index = i;
-	       //    var entryTitle = result.feed.entries[index].title;
-	       //    //console.log(entryTitle);
-        // 	})();
-        // }
       }
     });
   }
   google.setOnLoadCallback(initialize);
 
 
-	$('.articleContent a').on('click', function() {
-		$('#popUp').removeClass('hidden loader'); // TODO: only .hidden should be removed
+	$('body').on('click', '.articleContent a' , function() {
+		console.log('clicked');
+		$('#popUp').removeClass('hidden loader'); // TODO: only .hidden should be removed (on load)
 	});
 
 	$('.closePopUp').on('click', function() {

@@ -55,19 +55,20 @@
         <section id="main" class="container">
           <script id="entries-template" type="text/x-handlebars-template">
             {{#each entries}}
-              <article class="article">
-              <section class="featuredImage">
-                <img src="images/article_placeholder_2.jpg" alt="" />
-              </section>
-                <section class="articleContent">
-                    <a href="#"><h3>{{title}}</h3></a>
-                    <h6>{{contentSnippet}}</h6>
-                </section>
-                <section class="impressions">
-                  {{publishedDate}}
-                </section>
-                <div class="clearfix"></div>
-              </article>
+              <div>
+                <article class="article">
+                  <section class="featuredImage">
+                    <img src="{{image}}" alt="" />
+                  </section>
+                  <section class="articleContent">
+                      <a href="#"><h3>{{title}}</h3></a>
+                      <h6>{{contentSnippet}}</h6>
+                  </section>
+                  <section class="impressions">
+                    {{date}}
+                  </section>
+                </article>
+              </div>
             {{/each}}
           </script>          
         </section>
