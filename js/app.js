@@ -15,30 +15,52 @@
 	var sources = {
 		list: [
 			{src: 'Latest Wildlife'},
-			{src: 'Wildlife updates '},
+			{src: 'Wildlife Updates'},
 			{src: 'Collections'}
 		]
 	}
 
+	// Templating for the Source List
 	var source = $('#sources-template').html();
 	var template = Handlebars.compile(source);
 	var compileTemplate = template(sources);
 	$('#srcList').append(compileTemplate);
 
 	function initialize() {
-    var feed = new google.feeds.Feed("http://www.bbc.co.uk/nature/wildlife/by/latest.rss");
+		var url = 'http://www.bbc.co.uk/nature/';
+
+		var txt = $('#srcName').text();
+		console.log(txt);
+
+		// Selecting each source changes the URL
+    switch(txt) {
+    	case 'Wildlife Updates':
+    		url += "updated.rss";
+    		break;
+    	case 'Collections':
+    		url += "collections.rss";
+    		break;
+    	default:
+    		url += "wildlife/by/latest.rss";
+    }
+    console.log(url);
+
+    var feed = new google.feeds.Feed(url)
+
     feed.setNumEntries(8);
     feed.setResultFormat(google.feeds.Feed.XML_FORMAT);
     feed.load(function(result) {
 
+
       if (!result.error) {
+      	// Show the loader page while loading
       	$('#popUp').removeClass('loader');
       	$('#popUp').addClass('hidden');
 
       	var $xml = $(result.xmlDocument);
       	var items = $xml.find('item');
       	
-      	console.log(result.xmlDocument);
+      	//console.log(result.xmlDocument);
 
       	items.each(function(i, item) {
       		var entry = {};
@@ -60,18 +82,17 @@
       		takenFeed.entries.push(entry); // push to entry to use the data for templating
       	})
 
+      	// Templating for the list in main page
 	    	var source = $('#entries-template').html();
-
 				var template = Handlebars.compile(source);
-				
 				var compileTemplate = template(takenFeed);
-
 				$('#main').append(compileTemplate);
       }
     });
   }
   google.setOnLoadCallback(initialize);
 
+  // Open each article
 	$('body').on('click', '.articleContent a' , function(event) {
 		var ttl = $(event.target).text();
 		var desc, link;										// TODO: define these
@@ -88,19 +109,26 @@
 		$('.popUpAction').attr('href', link)
 	});
 
+	// Close the popUp window
 	$('.closePopUp').on('click', function() {
 		$('#popUp').addClass('hidden');
 	});
 
-	// TODO: Go back to the first page
-	// $('.container a').on('click', function() {
-
-	// });
-
-	$('#srcList').on('click', 'li', function(e) {
-		$('#srcName').text($(event.target).text());
+	// Clicking on logo redirects to the first page      *TODO*
+	$('.container a').on('click', function() {
+		$('#logo').attr('href', '#');
 	});
 
+	// Clicking on the items in Source List
+	$('#srcList').on('click', 'li', function(e) {
+		$('#popUp').addClass('loader');
+		$('#popUp').removeClass('hidden');
+		//$('#main').empty();
+		$('#srcName').text($(event.target).text());
+		initialize();
+	});
+
+	// Clicking on the search icon expands the box
 	$('#search a').on('click', function() {
 		if($('#search input').css('visibility') === 'visible') {
 			$('#search input').css('visibility', 'hidden');
