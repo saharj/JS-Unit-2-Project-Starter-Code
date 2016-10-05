@@ -9,6 +9,7 @@
 	google.load("feeds", "1");
 	$('#popUp').removeClass('hidden');
 
+	var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	var takenFeed = {
 		entries: []
 	};
@@ -30,12 +31,11 @@
 		var url = 'http://www.bbc.co.uk/nature/';
 
 		var txt = $('#srcName').text();
-		console.log(txt);
 
 		// Selecting each source changes the URL
     switch(txt) {
     	case 'Wildlife Updates':
-    		url += "updated.rss";
+    		url += "wildlife/by/updated.rss";
     		break;
     	case 'Collections':
     		url += "collections.rss";
@@ -43,11 +43,10 @@
     	default:
     		url += "wildlife/by/latest.rss";
     }
-    console.log(url);
 
     var feed = new google.feeds.Feed(url)
 
-    feed.setNumEntries(8);
+    feed.setNumEntries(20);
     feed.setResultFormat(google.feeds.Feed.XML_FORMAT);
     feed.load(function(result) {
 
@@ -57,11 +56,12 @@
       	$('#popUp').removeClass('loader');
       	$('#popUp').addClass('hidden');
 
+      	// Empty the feed
+      	takenFeed.entries = [];
+
       	var $xml = $(result.xmlDocument);
       	var items = $xml.find('item');
       	
-      	//console.log(result.xmlDocument);
-
       	items.each(function(i, item) {
       		var entry = {};
       		var date = $(item).find('pubDate').text();
@@ -70,23 +70,29 @@
       		var link = $(item).find('link').text();
       		var img = $(item).find(':nth(3)').attr('url');
       		var d = new Date(date);
-      		//var month = d.getMonth() + 1;
+      		var month = months[d.getMonth()];
       		var year = d.getFullYear();
 
       		entry.contentSnippet = content.substr(0, 100) + '...';
-      		entry.date = year; // TODO: Let's add moths too
+      		entry.date = month + ' ' + year;
       		entry.title = title;
       		entry.image = img;
       		entry.link = link;
       		entry.descriptions = content;
-      		takenFeed.entries.push(entry); // push to entry to use the data for templating
+      		// push to entry to use the data for templating
+      		takenFeed.entries.push(entry);
       	})
+      	console.log(takenFeed.entries);
 
       	// Templating for the list in main page
 	    	var source = $('#entries-template').html();
 				var template = Handlebars.compile(source);
 				var compileTemplate = template(takenFeed);
-				$('#main').append(compileTemplate);
+				$('#main').html(compileTemplate);
+      } else {
+      	$('#popUp').removeClass('loader');
+      	$('#popUp').addClass('hidden');
+      	$('#main').text('Sorry! There seems to be a problem loading the page. Please try later!')
       }
     });
   }
@@ -95,35 +101,43 @@
   // Open each article
 	$('body').on('click', '.articleContent a' , function(event) {
 		var ttl = $(event.target).text();
-		var desc, link;										// TODO: define these
-		//var snippet = $(event.target).parent().siblings().text();
+		var articleIndex = $(event.target).parent().attr('href');
+		// remove the # from articleIndex
+		var index = articleIndex.replace('#', '');
+		console.log(index);
 
-		// $(descriptions).each(function(index, d) {
-		// 	if(d.substr(0, 100) === snippet) {
- 		$('.container p').text(desc);
-		// 	}
-		// });
+		$('.container p').html(takenFeed.entries[index].descriptions);
 
-		$('#popUp').removeClass('hidden loader'); // TODO: only .hidden should be removed (on load)
+		$('#popUp').removeClass('hidden');
 		$('.container h1').text(ttl);
-		$('.popUpAction').attr('href', link)
+		$('.popUpAction').attr('href', takenFeed.entries[index].link)
+	});
+
+	// Clicking on the link in popUp closes the popUp
+	$('.popUpAction').on('click', function() {
+		$('#popUp').addClass('hidden');
+		$('#logo h1').text('Feedr');
 	});
 
 	// Close the popUp window
 	$('.closePopUp').on('click', function() {
 		$('#popUp').addClass('hidden');
+		$('#logo h1').text('Feedr');
 	});
 
-	// Clicking on logo redirects to the first page      *TODO*
+	// Clicking on logo redirects to the first page	
 	$('.container a').on('click', function() {
-		$('#logo').attr('href', '#');
+		$('#popUp').addClass('loader');
+		$('#popUp').removeClass('hidden');
+		$('#logo').attr('href', '#Latest Wildlife');
+		$('#srcName').text('Latest Wildlife');
+		initialize();
 	});
 
 	// Clicking on the items in Source List
 	$('#srcList').on('click', 'li', function(e) {
 		$('#popUp').addClass('loader');
 		$('#popUp').removeClass('hidden');
-		//$('#main').empty();
 		$('#srcName').text($(event.target).text());
 		initialize();
 	});

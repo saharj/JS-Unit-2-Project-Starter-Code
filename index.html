@@ -12,6 +12,24 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
       <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+      <script id="entries-template" type="text/x-handlebars-template">
+        {{#each entries}}
+          <div>
+            <article class="article">
+              <section class="featuredImage">
+                <img src="{{image}}" alt="" />
+              </section>
+              <section class="articleContent">
+                  <a href="#{{@index}}"><h3>{{title}}</h3></a>
+                  <h6>{{contentSnippet}}</h6>
+              </section>
+              <section class="impressions">
+                {{date}}
+              </section>
+            </article>
+          </div>
+        {{/each}}
+      </script>   
 
     </head>
 
@@ -30,7 +48,7 @@
                     <script id="sources-template" type="text/x-handlebars-template">
                       <div>
                         {{#each list}}
-                          <li><a href="#">{{src}}</a></li>
+                          <li><a href="#{{src}}">{{src}}</a></li>
                         {{/each}}
                       </div>
                     </script>
@@ -45,6 +63,9 @@
             <div class="clearfix"></div>
           </section>
         </header>
+
+        <section id="main" class="container"></section>
+
         <div id="popUp" class="loader hidden">
           <a href="#" class="closePopUp">X</a>
           <div class="container">
@@ -55,27 +76,6 @@
             <a href="#" class="popUpAction" target="_blank">Read more from source</a>
           </div>
         </div>
-
-        <section id="main" class="container">
-          <script id="entries-template" type="text/x-handlebars-template">
-            {{#each entries}}
-              <div>
-                <article class="article">
-                  <section class="featuredImage">
-                    <img src="{{image}}" alt="" />
-                  </section>
-                  <section class="articleContent">
-                      <a href="#"><h3>{{title}}</h3></a>
-                      <h6>{{contentSnippet}}</h6>
-                  </section>
-                  <section class="impressions">
-                    {{date}}
-                  </section>
-                </article>
-              </div>
-            {{/each}}
-          </script>          
-        </section>
 
         <script type="text/javascript" src="handlebars-v4.0.5.js"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
